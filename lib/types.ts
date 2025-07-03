@@ -5,4 +5,5 @@ export interface EpisodeItem {
   publisher: string;
   thumbnail: string;
   title: string;
+  audioLength: string;
 }

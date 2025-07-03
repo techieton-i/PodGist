@@ -15,6 +15,6 @@ export async function fetchEpisodes() {
     return data;
   } catch (error) {
     console.error("Failed to fetch episodes:", error);
-    return null; // or throw error if you want upstream to handle it
+    return null;
   }
 }

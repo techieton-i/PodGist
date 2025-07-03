@@ -1,6 +1,5 @@
 "use client";
 
-import { delay } from "motion";
 import { motion, TargetAndTransition, VariantLabels } from "motion/react";
 import React from "react";
 

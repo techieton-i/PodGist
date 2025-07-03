@@ -45,3 +45,15 @@ export function handleApiError(error: unknown) {
 
   return NextResponse.json({ error: message }, { status: 500 });
 }
+
+export const formatTime = (seconds: number): string => {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  const hoursStr = hrs > 0 ? `${hrs}h : ` : "";
+  const minutesStr = `${mins}m : `;
+  const secondsStr = `${secs}s`;
+
+  return hoursStr + minutesStr + secondsStr;
+};
