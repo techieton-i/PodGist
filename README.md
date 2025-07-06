@@ -1,5 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
 First, run the development server:
@@ -20,17 +18,74 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## 🎙️ Podcast Summarizer App
 
-To learn more about Next.js, take a look at the following resources:
+Overview
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The Podcast Summarizer is a web-based application designed to generate AI-powered summaries of podcast episodes from a simple audio URL. It uses Google Gemini 2.5 Flash for fast, high-quality summarization and streams the generated content in real-time to the user interface.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Input**: Podcast episode audio URL
+- **Output**: Real-time streamed summary
+- **Stack**:
 
-## Deploy on Vercel
+  - **Next.js (App Router)** + TypeScript
+  - **Google GenAI SDK (Gemini)**
+  - **MongoDB** for persistent caching
+  - **Tailwind CSS + Shadcn UI** for styling
+  - **ReadableStream** APIs for streaming UX
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Thought Process & Architecture
+
+#### Goals
+
+- Minimal user friction (click to summarize)
+- Real-time feedback via streaming
+- Prevent duplicate LLM calls via DB cache
+- Ensure mobile-first responsiveness
+
+#### Architecture
+
+```
+Frontend (React)
+  ⬇ POST /api/summary
+Backend API Route
+  ⬇ Connect to DB → Check for existing summary
+  ⬇ If not found → Fetch & encode audio
+  ⬇ Call Gemini → Stream response
+  ⬇ Save full summary to MongoDB
+  ⬅ Stream summary back to client
+```
+
+#### Flow
+
+1. User clicks **"Get Summary"**
+2. Client sends `audioUrl` + `episodeId` to `/api/summary`
+3. If summary exists in MongoDB → return as JSON
+4. If not → audio is fetched, converted to base64, sent to Gemini
+5. Gemini streams the summary → streamed back to UI with typewriter effect
+6. Final result is cached
+
+---
+
+### Challenges & Trade-offs
+
+| Challenge                       | Solution / Trade-off                                              |
+| ------------------------------- | ----------------------------------------------------------------- |
+| Slow audio fetching             | Used `streamToBase64()` with streaming buffer handling            |
+| Streaming delay in UI           | Character-by-character rendering + `TextDecoder` chunk management |
+| Handling LLM timeouts           | `AbortController` + manual timeout setup (30s cap)                |
+| Streaming cancel on modal close | Hooked into modal close event to abort fetch                      |
+| Cross-device design             | Custom `useDeviceType()` hook to differentiate mobile/desktop     |
+
+---
+
+### Known Limitations
+
+| Limitation                 | Notes                                                             |
+| -------------------------- | ----------------------------------------------------------------- | --- |
+| Large audio files          | Streaming or converting huge MP3s can break memory/timeout limits |     |
+| Gemini accuracy dependency | Output depends on model's interpretation of input                 |
+| Only supports MP3 links    | No file uploads or WAV support yet                                |
+| No multi-user history      | Summaries are stored per `episodeId` without user linkage         |

@@ -27,7 +27,7 @@ Instructions:
 - Then provide a more detailed summary organized by sections or themes.
 - Highlight important points, insights, names, dates, or statistics mentioned.
 - If there is any dialogue or interview format, identify the speakers and summarize their viewpoints separately.
-- Limit the total response to **400–500 words**.
+- Limit the total response to **300–400 words**.
 
 Be clear, concise, and maintain the logical flow of the original audio.`,
       },
